@@ -13,7 +13,7 @@ namespace CssInCs
         public Dictionary<string, IProperty> GetProperties() => _properties;
         public Dictionary<string, CSSObject> GetStyles() => _styles;
         
-        public CSSObject this[string key]
+        public CSSInterpolation this[string key]
         {
             get => _styles[key];
             set => SetStyle(key, value);
@@ -65,14 +65,24 @@ namespace CssInCs
             return this;
         }
 
-        private void SetStyle(string key, CSSObject value)
+        public CSSObject Merge(CSSObject[] objects)
         {
+            foreach (var css in objects)
+            {
+                Merge(css);
+            }
+            return this;
+        }
+
+        private void SetStyle(string key, CSSInterpolation value)
+        {
+            var cssObject = value.IsT0 ? value.AsT0 : new CSSObject().Merge(value.AsT1);
             if (key == MERGE_OPERATOR)
             {
-                Merge(value);
+                Merge(cssObject);
                 return;
             }
-            _styles[key] = value;
+            _styles[key] = cssObject;
         }
     }
 }
